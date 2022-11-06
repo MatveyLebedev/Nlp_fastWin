@@ -119,7 +119,10 @@ class CategoryPredictor:
                     num = clear_cloud.count(w)
                     score += K_big_cloud * num / math.log(len(big_cloud))
                 if self.Fast == False:
-                    score += self.calculate_distanses(word=w, cloud=big_cloud) * K_dist / math.log(len(big_cloud))
+                    try:
+                        score += self.calculate_distanses(word=w, cloud=big_cloud) * K_dist / math.log(len(big_cloud))
+                    except:
+                        print('score 3 error')
 
             scores[c] = score
         if '-' in scores.keys():
@@ -153,7 +156,7 @@ class PredictController:
     def connect_db(self):
         self.conn = psycopg2.connect(dbname='ideas', user='ideas', 
                         password='ideas2022', host='collabro.ru')
-        self.cursor = conn.cursor()
+        self.cursor = self.conn.cursor()
 
     def get_data_db(self):
         q = f'''SELECT {self.categorys}.{self.category_col} AS subsidy, projects.title, {self.categorys}.id,
@@ -163,7 +166,8 @@ class PredictController:
         if self.categorys == 'tag':
             print(q)
         df = pd.read_sql(q, self.conn)
-        self.len_sub_project = len(df)
+        #self.len_sub_project = len(df)
+        self.len_sub_project = pd.read_sql(f'SELECT max(id) FROM {self.join_table}', self.conn)['max'][0]
 
         df_train = df[df['accepted'] == True]
 
@@ -192,7 +196,6 @@ class PredictController:
         self.join_table=join_table
         self.category_col=category_col
         self.category_id=category_id
-        self.connect_db()
         df_train, df_test = self.get_data_db()
         Predictor = CategoryPredictor(label='title',    
                               category_columns=['subsidy'], df=df_train)
@@ -208,16 +211,28 @@ class PredictController:
             cursor = self.conn.cursor()
             cursor.execute(insert_query, self.values)
             self.conn.commit()
-        self.conn.close()
+        
         return df_predicted
 
     def server(self):
         while True:
-            self.fit_predict(categorys='subsidies', join_table='subsidy_project', category_col='title', category_id='subsidies_id')
+            self.connect_db()
+            try:
+                self.fit_predict(categorys='subsidies', join_table='subsidy_project', category_col='title', category_id='subsidies_id')
+            except:
+                print('err sybsidy')
             time.sleep(1)
-            self.fit_predict(categorys='tag', join_table='tag_project', category_col='tag_name', category_id='tag_id')
+            try:
+                self.fit_predict(categorys='tag', join_table='tag_project', category_col='tag_name', category_id='tag_id')
+            except:
+                print('err tags')
             time.sleep(1)
-
+            try:
+                self.fit_predict(categorys='innovation', join_table='innovation_project', category_col='is_innovation', category_id='innovation_id')
+            except:
+                print('err inovation')
+            time.sleep(1)
+            self.conn.close()
             time.sleep(10)
 
 Controller = PredictController()

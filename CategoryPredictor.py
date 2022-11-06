@@ -116,11 +116,14 @@ class CategoryPredictor:
                     num = clear_cloud.count(w)
                     score += K_big_cloud * num / math.log(len(big_cloud))
                 if self.Fast == False:
-                    score += self.calculate_distanses(word=w, cloud=big_cloud) * K_dist / math.log(len(big_cloud))
+                    try:
+                        score += self.calculate_distanses(word=w, cloud=big_cloud) * K_dist / math.log(len(big_cloud))
+                    except:
+                        print('score 3 error')
 
             scores[c] = score
-        if '-' in scores.keys():
-            scores['-'] *= 10
+        #if '-' in scores.keys():   #   !!!!
+        #    scores['-'] *= 10
         sorted_scores = dict(sorted(scores.items(),key=lambda item:item[1])[::-1][0:K_top])
         return sorted_scores
     
