@@ -90,12 +90,13 @@ class CategoryPredictor:
     def find_categoris(self,
                         text,
                         category=None,
-                        K_cloud=0,
+                        K_cloud=0.01,
                         K_clear_cloud=3,
                         K_big_cloud=1,
                         K_dist=1,
                         K_top=3,
                         ):
+        
         if category != None:
             self.woc = self.word_clouds[category]
         scores = {} # catedory: score
