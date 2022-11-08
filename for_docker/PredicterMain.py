@@ -90,7 +90,7 @@ class CategoryPredictor:
     def find_categoris(self,
                         text,
                         category=None,
-                        K_cloud=0.01,
+                        K_cloud=0.1,
                         K_clear_cloud=3,
                         K_big_cloud=1,
                         K_dist=1,
@@ -110,15 +110,16 @@ class CategoryPredictor:
             for w in words:
                 if w in cloud:
                     num = cloud.count(w)
-                    score += K_cloud * num / math.log(len(cloud))
+                    score += K_cloud * num / (math.log(len(cloud)) + 1)
                 
                 if w in big_cloud:
                     num = big_cloud.count(w)
-                    score += K_clear_cloud * num / math.log(len(clear_cloud))
+                    score += K_clear_cloud * num / (math.log(len(big_cloud)) + 1)
                 
                 if w in clear_cloud:
                     num = clear_cloud.count(w)
-                    score += K_big_cloud * num / math.log(len(big_cloud))
+                    score += K_big_cloud * num / (math.log(len(clear_cloud)) + 1)
+
                 if self.Fast == False:
                     try:
                         score += self.calculate_distanses(word=w, cloud=big_cloud) * K_dist / math.log(len(big_cloud))
