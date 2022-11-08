@@ -8,6 +8,11 @@ RUN pip3 install psycopg2-binary
 RUN pip3 install wiki_ru_wordnet
 RUN pip3 install pymorphy2
 
+ENV DB_HOST=45.9.25.141
+ENV DB_NAME=ideas
+ENV DB_USER=ideas
+ENV DB_PASSWORD=ideas2022
+
 RUN cd /home/mehdi/Download/
 
 CMD ["python","/home/mehdi/Download/PredicterMain.py"]
