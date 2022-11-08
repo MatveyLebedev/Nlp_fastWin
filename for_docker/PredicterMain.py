@@ -5,6 +5,12 @@ import math
 from wiki_ru_wordnet import WikiWordnet
 import psycopg2
 import time
+import os
+
+DB_HOST=os.environ.get('DB_HOST')
+DB_NAME=os.environ.get('DB_NAME')
+DB_USER=os.environ.get('DB_USER')
+DB_PASSWORD=os.environ.get('DB_PASSWORD')
 
 wikiwordnet = WikiWordnet()
 morph = pymorphy2.MorphAnalyzer()
@@ -156,8 +162,8 @@ class CategoryPredictor:
 
 class PredictController:
     def connect_db(self):
-        self.conn = psycopg2.connect(dbname='ideas', user='ideas', 
-                        password='ideas2022', host='collabro.ru')
+        self.conn = psycopg2.connect(dbname=DB_NAME, user=DB_USER, 
+                        password=DB_PASSWORD, host=DB_HOST)
         self.cursor = self.conn.cursor()
 
     def get_data_db(self):
